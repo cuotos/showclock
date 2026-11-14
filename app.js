@@ -297,9 +297,13 @@ document.fonts.load('700 10px "Antonio"').then(() => {
 
 // Deploy time: GitHub Pages sends the deploy time as the page's Last-Modified,
 // which the browser exposes as document.lastModified (locally it's the file's save time)
-$("deployed").textContent = "DEPLOYED " + new Date(document.lastModified).toLocaleString([], {
-  day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hour12: false,
-});
+// Shown as a panel code, ddmmyy-hhmm, e.g. 141126-2244
+{
+  const d = new Date(document.lastModified);
+  const p = (n) => String(n).padStart(2, "0");
+  $("deployed").textContent =
+    `${p(d.getDate())}${p(d.getMonth() + 1)}${p(d.getFullYear() % 100)}-${p(d.getHours())}${p(d.getMinutes())}`;
+}
 
 // Keep the screen awake while the board is showing (Screen Wake Lock API).
 // The lock is dropped whenever the page is hidden, so re-request it when visible again.

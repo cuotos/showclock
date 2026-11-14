@@ -244,3 +244,4 @@ textarea { text-transform: uppercase; }
 
 .logo { height: 9vh; margin-left: 2vw; }
 .c-green { background: var(--green); }
+#deployed { font-size: 2.6vh; letter-spacing: 0.12em; }
