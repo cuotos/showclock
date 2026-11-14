@@ -241,3 +241,5 @@ textarea { text-transform: uppercase; }
   text-transform: none; /* base64 is case-sensitive */
 }
 #share-code::placeholder { color: var(--blue); font-family: "Antonio", sans-serif; font-size: 16px; }
+
+.logo { height: 9vh; margin-left: 2vw; }

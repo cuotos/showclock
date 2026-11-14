@@ -31,6 +31,7 @@ jobs:
           mkdir _site
           cp style.css "_site/style.$v.css"
           cp app.js "_site/app.$v.js"
+          cp -r assets _site/assets
           sed -e "s|href=\"style.css\"|href=\"style.$v.css\"|" \
               -e "s|src=\"app.js\"|src=\"app.$v.js\"|" \
               index.html > _site/index.html
