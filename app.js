@@ -238,9 +238,11 @@ $("share-code").addEventListener("keydown", (e) => {
   importCode();
 });
 
-// Enter saves and closes; Shift+Enter inserts a new line
+// Enter saves and closes; Shift+Enter inserts a new line.
+// On touch screens (no Shift on the on-screen keyboard) Return is a normal new line; use SAVE.
+const isTouch = matchMedia("(pointer: coarse)").matches;
 $("schedule-text").addEventListener("keydown", (e) => {
-  if (e.key !== "Enter") return;
+  if (e.key !== "Enter" || isTouch) return;
   e.preventDefault();
   const ta = e.target;
   if (e.shiftKey) {
@@ -260,11 +262,28 @@ document.addEventListener("keydown", (e) => {
       break;
     case "f":
     case "F":
-      if (document.fullscreenElement) document.exitFullscreen();
-      else document.documentElement.requestFullscreen();
+      toggleFullscreen();
       break;
   }
 });
+
+// Safari (incl. iPad) still uses the webkit-prefixed fullscreen API
+function toggleFullscreen() {
+  const root = document.documentElement;
+  if (document.fullscreenElement || document.webkitFullscreenElement) {
+    (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  } else {
+    (root.requestFullscreen || root.webkitRequestFullscreen).call(root);
+  }
+}
+
+// The bottom-bar labels double as buttons for touch screens
+$("edit-btn").addEventListener("click", openEditor);
+$("fullscreen-btn").addEventListener("click", toggleFullscreen);
+// iPhone has no fullscreen API for pages; hide the button there
+if (!document.documentElement.requestFullscreen && !document.documentElement.webkitRequestFullscreen) {
+  $("fullscreen-btn").hidden = true;
+}
 
 render();
 setInterval(render, 250);

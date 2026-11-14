@@ -3,6 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- launched from the iPad home screen: no browser toolbars -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <title>Showclock</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;700&display=swap">
@@ -46,8 +50,8 @@
     <div class="elbow bottom"><span></span></div>
     <div class="bottombar">
       <div class="curve bottom"></div>
-      <div class="key c-blue">E · EDIT</div>
-      <div class="key c-gold">F · FULLSCREEN</div>
+      <button id="edit-btn" type="button" class="key c-blue">E · EDIT</button>
+      <button id="fullscreen-btn" type="button" class="key c-gold">F · FULLSCREEN</button>
       <div class="bar c-orange cap grow"></div>
     </div>
   </main>
@@ -55,7 +59,7 @@
   <dialog id="editor">
     <form method="dialog">
       <h2>SCHEDULE</h2>
-      <p>ONE PHASE PER LINE: <code>HH:MM NAME</code>. LAST LINE IS THE END POINT (E.G. CURFEW).<br>ENTER TO SAVE · SHIFT+ENTER FOR NEW LINE · ESC TO CANCEL</p>
+      <p>ONE PHASE PER LINE: <code>HH:MM NAME</code>. LAST LINE IS THE END POINT (E.G. CURFEW).<br>ENTER TO SAVE · SHIFT+ENTER FOR NEW LINE · ESC TO CANCEL (ON IPAD: RETURN = NEW LINE, TAP SAVE)</p>
       <textarea id="schedule-text" rows="14" spellcheck="false"></textarea>
       <div id="editor-errors"></div>
       <div class="share">

@@ -39,6 +39,7 @@ html, body {
 
 .lcars {
   height: 100vh;
+  height: 100dvh; /* iPad/iPhone Safari: excludes the browser toolbars */
   display: grid;
   grid-template-columns: var(--side) 1fr;
   /* frame, now, progress, next, later, frame */
@@ -100,13 +101,21 @@ html, body {
 }
 
 .key {
+  position: relative;
   height: var(--thick);
   padding: 0 1vw;
   color: #000;
+  font-family: inherit;
+  font-weight: 400;
   font-size: 1.7vh;
   line-height: var(--thick);
+  letter-spacing: normal;
+  border-radius: 0;
   white-space: nowrap;
+  cursor: pointer;
 }
+/* the bar is thin; extend the tap area upwards so it's easy to hit on a touch screen */
+.key::after { content: ""; position: absolute; inset: -4vh 0 0 0; }
 
 /* ---- sidebar headings, one per row ---- */
 .block {
