@@ -20,3 +20,7 @@ Open `index.html` in a browser. No build, no server. The Antonio font loads from
 One line per phase, `HH:MM Name`. The last line is the end point (e.g. curfew). Times that go past midnight are handled.
 
 The current phase is purely driven by the clock against the schedule. The schedule is saved in the browser's localStorage.
+
+## Copying a schedule to another window
+
+In the editor, **EXPORT** turns the schedule into a code and copies it. Paste it into the code box in the other window and press **IMPORT** (or Enter).

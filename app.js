@@ -59,6 +59,26 @@ function fmtDuration(ms) {
   return h ? `${h}:${String(m).padStart(2, "0")}:${sec}` : `${m}:${sec}`;
 }
 
+// Keep text on one line, shrinking the font (from 19vh) until it fits its box
+const MAX_PHASE_VH = 19;
+function fitText(el, text) {
+  // Measure an inner span: the box's own scrollWidth doesn't report the overflow reliably
+  let span = el.firstElementChild;
+  const tooWide = () => span.getBoundingClientRect().width > el.clientWidth;
+  if (span && span.textContent === text && el.dataset.fitWidth === String(el.clientWidth) && !tooWide()) return;
+  el.innerHTML = "";
+  span = document.createElement("span");
+  span.textContent = text;
+  el.appendChild(span);
+  let vh = MAX_PHASE_VH;
+  el.style.fontSize = `${vh}vh`;
+  while (tooWide() && vh > 5) {
+    vh -= 0.5;
+    el.style.fontSize = `${vh}vh`;
+  }
+  el.dataset.fitWidth = String(el.clientWidth);
+}
+
 function render() {
   const now = Date.now();
   const base = baseDate(now);
@@ -72,7 +92,7 @@ function render() {
   for (let i = 0; i <= lastIdx; i++) if (sched(i) <= now) current = i;
 
   // Now
-  $("phase-name").textContent = current < 0 ? "Pre-show" : schedule[current].name;
+  fitText($("phase-name"), current < 0 ? "Pre-show" : schedule[current].name);
   $("phase-remaining").textContent = current < lastIdx
     ? `${fmtDuration(sched(current + 1) - now)} left`
     : "";
@@ -93,7 +113,7 @@ function render() {
   for (let i = current + 2; i <= lastIdx; i++) {
     const item = document.createElement("div");
     item.className = "later-item";
-    item.innerHTML = `<span class="later-name"></span> <span class="later-at"></span>`;
+    item.innerHTML = `<span class="later-at"></span> <span class="later-name"></span>`;
     item.querySelector(".later-name").textContent = schedule[i].name;
     item.querySelector(".later-at").textContent = fmtClock(sched(i));
     later.appendChild(item);
@@ -116,7 +136,14 @@ function renderTimeline(now, sched, current) {
 
   const start = sched(current);
   const end = sched(current + 1);
-  $("fill").style.width = `${((now - start) / (end - start)) * 100}%`;
+  const pct = ((now - start) / (end - start)) * 100;
+  $("fill").style.width = `${pct}%`;
+
+  // Percentage sits at the end of the fill: inside it once there's room, just after it before then
+  const label = $("pct");
+  label.textContent = `${Math.floor(pct)}%`;
+  label.style.left = `${pct}%`;
+  label.classList.toggle("inside", pct >= 10);
   $("tick-start").textContent = fmtClock(start);
   $("tick-end").textContent = fmtClock(end);
 }
@@ -127,7 +154,44 @@ function openEditor() {
     return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")} ${p.name}`;
   }).join("\n");
   showErrors([]);
+  $("share-code").value = "";
   $("editor").showModal();
+}
+
+// Schedule text <-> base64 code, so a schedule can be copied between windows/machines.
+// Goes via UTF-8 bytes so names with accents or emoji survive.
+function encodeSchedule(text) {
+  return btoa(String.fromCharCode(...new TextEncoder().encode(text)));
+}
+
+function decodeSchedule(code) {
+  const bytes = Uint8Array.from(atob(code.trim()), (c) => c.charCodeAt(0));
+  return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+}
+
+function exportCode() {
+  const input = $("share-code");
+  input.value = encodeSchedule($("schedule-text").value);
+  input.select();
+  // If the clipboard is blocked the code is still selected, so Cmd+C works
+  navigator.clipboard?.writeText(input.value).then(() => {
+    const btn = $("export");
+    btn.textContent = "COPIED";
+    setTimeout(() => (btn.textContent = "EXPORT"), 1500);
+  }, () => {});
+}
+
+// Import fills the editor from the code, then saves (same checks as a normal save)
+function importCode() {
+  let text;
+  try {
+    text = decodeSchedule($("share-code").value);
+  } catch {
+    showErrors(["THAT CODE ISN'T VALID — COPY THE WHOLE THING AND TRY AGAIN"]);
+    return;
+  }
+  $("schedule-text").value = text;
+  trySave();
 }
 
 // Save only if every line parses; otherwise list the bad lines and select the first one
@@ -166,6 +230,13 @@ function selectLine(ta, lineNo) {
 }
 
 $("save").addEventListener("click", trySave);
+$("export").addEventListener("click", exportCode);
+$("import").addEventListener("click", importCode);
+$("share-code").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault(); // stop the form submitting (which would close the box)
+  importCode();
+});
 
 // Enter saves and closes; Shift+Enter inserts a new line
 $("schedule-text").addEventListener("keydown", (e) => {
@@ -197,3 +268,10 @@ document.addEventListener("keydown", (e) => {
 
 render();
 setInterval(render, 250);
+
+// Re-fit the phase name once the web font has loaded (widths change).
+// fonts.load() requests it explicitly; fonts.ready can resolve before it's even asked for.
+document.fonts.load('700 10px "Antonio"').then(() => {
+  delete $("phase-name").dataset.fitWidth;
+  render();
+});
