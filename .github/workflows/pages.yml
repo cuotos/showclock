@@ -1,0 +1,46 @@
+# Deploy to GitHub Pages with the commit ID in the CSS/JS filenames,
+# so browsers can't serve a stale cached copy after a deploy.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build site with versioned asset names
+        run: |
+          v="${GITHUB_SHA::7}"
+          mkdir _site
+          cp style.css "_site/style.$v.css"
+          cp app.js "_site/app.$v.js"
+          sed -e "s|href=\"style.css\"|href=\"style.$v.css\"|" \
+              -e "s|src=\"app.js\"|src=\"app.$v.js\"|" \
+              index.html > _site/index.html
+          # fail the build if index.html no longer references the files we renamed
+          grep -q "style.$v.css" _site/index.html
+          grep -q "app.$v.js" _site/index.html
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
