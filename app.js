@@ -300,3 +300,24 @@ document.fonts.load('700 10px "Antonio"').then(() => {
 $("deployed").textContent = "DEPLOYED " + new Date(document.lastModified).toLocaleString([], {
   day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hour12: false,
 });
+
+// Keep the screen awake while the board is showing (Screen Wake Lock API).
+// The lock is dropped whenever the page is hidden, so re-request it when visible again.
+// Some browsers only grant it after a tap, so also try on the first tap.
+let wakeLock = null;
+async function keepAwake() {
+  if (!("wakeLock" in navigator) || document.visibilityState !== "visible" || wakeLock) return;
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    $("awake").hidden = false;
+    wakeLock.addEventListener("release", () => {
+      wakeLock = null;
+      $("awake").hidden = true;
+    });
+  } catch {
+    // refused (e.g. low power mode, or needs a tap first) — try again on the next chance
+  }
+}
+keepAwake();
+document.addEventListener("visibilitychange", keepAwake);
+document.addEventListener("pointerdown", keepAwake);
