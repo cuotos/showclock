@@ -294,3 +294,9 @@ document.fonts.load('700 10px "Antonio"').then(() => {
   delete $("phase-name").dataset.fitWidth;
   render();
 });
+
+// Deploy time: GitHub Pages sends the deploy time as the page's Last-Modified,
+// which the browser exposes as document.lastModified (locally it's the file's save time)
+$("deployed").textContent = "DEPLOYED " + new Date(document.lastModified).toLocaleString([], {
+  day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hour12: false,
+});
