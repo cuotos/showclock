@@ -1,12 +1,11 @@
-const DEFAULT_SCHEDULE = `10:00 Load in
-13:00 Soundcheck
-16:00 Support soundcheck
-17:00 Dinner
-18:30 Doors
+const DEFAULT_SCHEDULE = `13:00 Load in
+15:00 Sound check
+19:00 Doors
 19:30 Support
 20:15 Changeover
 20:45 Headliner
-22:45 Curfew`;
+22:15 End
+23:00 Curfew`;
 
 const MIN = 60 * 1000;
 const STORE_SCHEDULE = "showclock.schedule";
@@ -59,7 +58,7 @@ function fmtDuration(ms) {
   return h ? `${h}:${String(m).padStart(2, "0")}:${sec}` : `${m}:${sec}`;
 }
 
-// Keep text on one line, shrinking the font (from 19vh) until it fits its box
+// Keep text on one line, shrinking the font (from 19 units) until it fits its box
 const MAX_PHASE_VH = 19;
 function fitText(el, text) {
   // Measure an inner span: the box's own scrollWidth doesn't report the overflow reliably
@@ -71,10 +70,10 @@ function fitText(el, text) {
   span.textContent = text;
   el.appendChild(span);
   let vh = MAX_PHASE_VH;
-  el.style.fontSize = `${vh}vh`;
+  el.style.fontSize = `calc(${vh} * var(--u))`;
   while (tooWide() && vh > 5) {
     vh -= 0.5;
-    el.style.fontSize = `${vh}vh`;
+    el.style.fontSize = `calc(${vh} * var(--u))`;
   }
   el.dataset.fitWidth = String(el.clientWidth);
 }

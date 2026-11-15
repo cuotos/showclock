@@ -20,22 +20,21 @@
       <div class="curve top"></div>
       <div class="bar c-peach w20"></div>
       <div class="bar c-lavender w10"></div>
-      <img class="logo" src="assets/soundan-logo.svg" alt="Soundan">
       <div class="title"><span class="clock-label">NOW</span> <span id="clock">--:--:--</span></div>
       <div class="bar c-orange cap"></div>
     </div>
 
     <!-- each row: sidebar heading, then its content -->
-    <div class="block c-lavender">CURRENT<b>01</b></div>
-    <div id="now" class="cell">
-      <div id="phase-name">—</div>
-      <div id="phase-remaining">--:--</div>
-    </div>
-
-    <div class="block c-blue">PROGRESS<b>02</b></div>
+    <div class="block c-blue">PROGRESS<b>01</b></div>
     <div id="timeline" class="cell">
       <div id="bar"><div id="fill"></div><div id="pct"></div></div>
       <div id="ticks"><span id="tick-start"></span><span id="tick-end"></span></div>
+    </div>
+
+    <div class="block c-lavender">CURRENT<b>02</b></div>
+    <div id="now" class="cell">
+      <div id="phase-name">—</div>
+      <div id="phase-remaining">--:--</div>
     </div>
 
     <div class="block c-gold">NEXT<b>03</b></div>
@@ -54,6 +53,7 @@
       <button id="edit-btn" type="button" class="key c-blue">E · EDIT</button>
       <button id="fullscreen-btn" type="button" class="key c-gold">F · FULLSCREEN</button>
       <div id="awake" class="key c-green" hidden>SCREEN ON</div>
+      <div class="key c-lavender">SOUNDAN</div>
       <div class="bar c-orange cap grow"></div>
     </div>
   </main>
