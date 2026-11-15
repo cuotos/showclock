@@ -58,8 +58,8 @@ function fmtDuration(ms) {
   return h ? `${h}:${String(m).padStart(2, "0")}:${sec}` : `${m}:${sec}`;
 }
 
-// Keep text on one line, shrinking the font (from 19 units) until it fits its box
-const MAX_PHASE_VH = 19;
+// Keep text on one line, shrinking the font until it fits its box.
+// Starting size comes from the CSS variable --fit-max (larger in portrait).
 function fitText(el, text) {
   // Measure an inner span: the box's own scrollWidth doesn't report the overflow reliably
   let span = el.firstElementChild;
@@ -69,7 +69,7 @@ function fitText(el, text) {
   span = document.createElement("span");
   span.textContent = text;
   el.appendChild(span);
-  let vh = MAX_PHASE_VH;
+  let vh = parseFloat(getComputedStyle(el).getPropertyValue("--fit-max")) || 19;
   el.style.fontSize = `calc(${vh} * var(--u))`;
   while (tooWide() && vh > 5) {
     vh -= 0.5;

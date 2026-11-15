@@ -249,3 +249,22 @@ textarea { text-transform: uppercase; }
 .c-green { background: var(--green); }
 /* SHOWCLOCK title and deploy time share the same panel-code look */
 .elbow.top span, #deployed { font-size: calc(2.6 * var(--u)); letter-spacing: 0.12em; }
+
+/* ---- portrait (taller than wide) ---- */
+#phase-name { --fit-max: 19; }
+/* only for clearly tall screens: near-square windows lack the height for the stacked layout */
+@media (max-aspect-ratio: 5/6) {
+  /* later row may shrink (its overflow is hidden) rather than push into the rows above */
+  .lcars { grid-template-rows: var(--frame) auto 1fr auto minmax(0, auto) var(--frame); }
+  #later { align-self: start; }
+
+  /* time left drops under the phase name, which can then use the full width */
+  #now { flex-direction: column; align-items: flex-start; row-gap: calc(2 * var(--u)); }
+  #phase-name { --fit-max: 34; width: 100%; flex: none; }
+  #phase-remaining { font-size: calc(16 * var(--u)); }
+
+  #next-name { font-size: calc(10 * var(--u)); }
+
+  /* later: one per line so nothing is cut off */
+  #later { flex-direction: column; gap: calc(1.5 * var(--u)); font-size: calc(5 * var(--u)); }
+}
