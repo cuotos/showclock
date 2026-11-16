@@ -91,7 +91,7 @@ function render() {
   for (let i = 0; i <= lastIdx; i++) if (sched(i) <= now) current = i;
 
   // Now
-  fitText($("phase-name"), current < 0 ? "Pre-show" : schedule[current].name);
+  fitText($("phase-name"), current < 0 ? "" : schedule[current].name);
   $("phase-remaining").textContent = current < lastIdx
     ? `${fmtDuration(sched(current + 1) - now)} left`
     : "";
