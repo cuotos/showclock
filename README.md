@@ -23,4 +23,4 @@ The current phase is purely driven by the clock against the schedule. The schedu
 
 ## Copying a schedule to another window
 
-In the editor, **EXPORT** turns the schedule into a code and copies it. Paste it into the code box in the other window and press **IMPORT** (or Enter).
+In the editor, **EXPORT** turns the schedule into a share link and copies it. Open the link anywhere to load that schedule (it asks before replacing a different saved one). Or paste the link, or an older bare code, into the code box in the other window and press **IMPORT** (or Enter).

@@ -117,10 +117,11 @@ function render() {
     item.querySelector(".later-at").textContent = fmtClock(sched(i));
     later.appendChild(item);
   }
-  // Drop items that would be cut off at the right edge
+  // Drop items that would be cut off at the right edge (or the bottom, in the portrait list)
   let overflowed = false;
   for (const item of later.children) {
-    overflowed ||= item.offsetLeft + item.offsetWidth > later.clientWidth;
+    overflowed ||= item.offsetLeft + item.offsetWidth > later.clientWidth + 1 // +1: offsets are rounded
+      || item.offsetTop + item.offsetHeight > later.clientHeight + 1;
     item.hidden = overflowed;
   }
 
@@ -163,14 +164,42 @@ function encodeSchedule(text) {
   return btoa(String.fromCharCode(...new TextEncoder().encode(text)));
 }
 
+// Accepts a bare code or a whole share link (takes what follows "#s=")
 function decodeSchedule(code) {
-  const bytes = Uint8Array.from(atob(code.trim()), (c) => c.charCodeAt(0));
+  code = decodeURIComponent(code.trim().replace(/^.*#s=/, ""));
+  const bytes = Uint8Array.from(atob(code), (c) => c.charCodeAt(0));
   return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+}
+
+// Link that opens showclock with this schedule. After "#" so it never reaches a server.
+function shareLink(text) {
+  return `${location.href.split("#")[0]}#s=${encodeSchedule(text)}`;
+}
+
+// Opened from a share link: load its schedule (asking first if it would replace a saved one),
+// then drop it from the address bar so a reload doesn't ask again
+function loadFromLink() {
+  if (!location.hash.startsWith("#s=")) return;
+  let text = null;
+  try {
+    text = decodeSchedule(location.hash);
+  } catch {}
+  history.replaceState(null, "", location.href.split("#")[0]);
+  const parsed = text && parseSchedule(text);
+  if (!parsed || parsed.errors.length || parsed.phases.length < 2) {
+    alert("THE SCHEDULE IN THAT LINK ISN'T VALID — COPY THE WHOLE LINK AND TRY AGAIN");
+    return;
+  }
+  const saved = localStorage.getItem(STORE_SCHEDULE);
+  if (saved && saved !== text && !confirm("REPLACE YOUR SCHEDULE WITH THE ONE IN THIS LINK?")) return;
+  schedule = parsed.phases;
+  localStorage.setItem(STORE_SCHEDULE, text);
+  render();
 }
 
 function exportCode() {
   const input = $("share-code");
-  input.value = encodeSchedule($("schedule-text").value);
+  input.value = shareLink($("schedule-text").value);
   input.select();
   // If the clipboard is blocked the code is still selected, so Cmd+C works
   navigator.clipboard?.writeText(input.value).then(() => {
@@ -186,7 +215,7 @@ function importCode() {
   try {
     text = decodeSchedule($("share-code").value);
   } catch {
-    showErrors(["THAT CODE ISN'T VALID — COPY THE WHOLE THING AND TRY AGAIN"]);
+    showErrors(["THAT CODE OR LINK ISN'T VALID — COPY THE WHOLE THING AND TRY AGAIN"]);
     return;
   }
   $("schedule-text").value = text;
@@ -284,6 +313,8 @@ if (!document.documentElement.requestFullscreen && !document.documentElement.web
   $("fullscreen-btn").hidden = true;
 }
 
+loadFromLink();
+addEventListener("hashchange", loadFromLink); // a link pasted into an already-open tab
 render();
 setInterval(render, 250);
 
